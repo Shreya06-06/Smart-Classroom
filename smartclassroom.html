@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Classroom</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #2563EB;
+            --secondary: #1E40AF;
+            --bg: #F3F4F6;
+            --white: #ffffff;
+            --text-main: #1F2937;
+            --text-light: #6B7280;
+            --success: #10B981;
+            --warning: #F59E0B;
+            --danger: #EF4444;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; }
+        body { background-color: #EFF6FF; min-height: 100vh; }
+        .hidden { display: none !important; }
+        .flex { display: flex; }
+        .grid { display: grid; }
+        .items-center { align-items: center; }
+        .justify-between { justify-content: space-between; }
+        .gap-2 { gap: 0.5rem; }
+        .gap-4 { gap: 1rem; }
+        .mb-4 { margin-bottom: 1rem; }
+        .p-4 { padding: 1rem; }
+        .text-sm { font-size: 0.875rem; }
+        .font-bold { font-weight: 600; }
+        .text-primary { color: var(--primary); }
+        .bg-white { background: var(--white); }
+        .rounded { border-radius: 12px; }
+        .shadow { box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); }
+        #login-screen {
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+        .login-card {
+            background: white;
+            padding: 2.5rem;
+            border-radius: 24px;
+            width: 100%;
+            max-width: 400px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+        }
+        .role-toggle {
+            background: #F3F4F6;
+            padding: 4px;
+            border-radius: 12px;
+            display: flex;
+            margin-bottom: 2rem;
+        }
+        .role-btn {
+            flex: 1;
+            padding: 10px;
+            border: none;
+            background: transparent;
+            border-radius: 10px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+        .role-btn.active { background: #000; color: white; }
+        .input-box {
+            width: 100%;
+            padding: 14px;
+            border: 1px solid #E5E7EB;
+            border-radius: 12px;
+            margin-bottom: 1rem;
+            outline: none;
+        }
+        .btn-main {
+            width: 100%;
+            background: #000;
+            color: white;
+            padding: 14px;
+            border: none;
+            border-radius: 12px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+        .dashboard-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+            animation: fadeIn 0.5s ease;
+        }
+        .header-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+        .logout-btn {
+            color: var(--danger);
+            cursor: pointer;
+            font-weight: 500;
+        }
+        .attendance-card {
+            background: linear-gradient(135deg, #2563EB, #1E40AF);
+            color: white;
+            padding: 2rem;
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .circular-chart {
+            width: 80px;
+            height: 80px;
+        }
+        .circle-bg { fill: none; stroke: rgba(255,255,255,0.2); stroke-width: 3.8; }
+        .circle { fill: none; stroke: #fff; stroke-width: 2.8; stroke-linecap: round; animation: progress 1s ease-out forwards; }
+        .percentage { fill: #fff; font-family: sans-serif; font-weight: bold; font-size: 0.5em; text-anchor: middle; }
+        .timetable-item {
+            display: flex;
+            align-items: center;
+            padding: 1rem;
+            border-left: 4px solid var(--primary);
+            background: white;
+            margin-bottom: 1rem;
+            border-radius: 0 12px 12px 0;
+        }
+        .status-badge {
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+        .status-pending { background: #FEF3C7; color: #D97706; }
+        .status-complete { background: #D1FAE5; color: #059669; }
+        .quick-actions {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+        .action-btn {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 16px;
+            text-align: center;
+            cursor: pointer;
+            transition: transform 0.2s;
+            border: 1px solid #eee;
+        }
+        .action-btn:hover { transform: translateY(-5px); border-color: var(--primary); }
+        .action-icon {
+            font-size: 1.5rem;
+            margin-bottom: 0.5rem;
+            color: var(--primary);
+        }
+        .submission-bar {
+            height: 8px;
+            background: #E5E7EB;
+            border-radius: 4px;
+            overflow: hidden;
+            margin-top: 8px;
+        }
+        .submission-fill {
+            height: 100%;
+            background: var(--success);
+            width: 0%;
+            transition: width 1s ease;
+        }
+        .modal-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.5);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 100;
+            opacity: 0; pointer-events: none;
+            transition: 0.3s;
+        }
+        .modal-overlay.open { opacity: 1; pointer-events: all; }
+        .modal {
+            background: white;
+            width: 90%; max-width: 500px;
+            padding: 2rem;
+            border-radius: 20px;
+        }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes progress { 0% { stroke-dasharray: 0 100; } }
+    </style>
+</head>
+<body>
+    <section id="login-screen">
+        <div class="login-card">
+            <h2 style="text-align: center; margin-bottom: 0.5rem;">Smart Classroom</h2>
+            <p style="text-align: center; color: #666; margin-bottom: 1.5rem;">Select your role to continue</p>
+            <div class="role-toggle">
+                <button class="role-btn active" id="btn-student" onclick="setRole('student')">
+                    <i class="fas fa-user-graduate"></i> Student
+                </button>
+                <button class="role-btn" id="btn-faculty" onclick="setRole('faculty')">
+                    <i class="fas fa-chalkboard-teacher"></i> Faculty
+                </button>
+            </div>
+            <form onsubmit="event.preventDefault(); login();">
+                <input type="email" class="input-box" placeholder="Email Address" required>
+                <input type="password" class="input-box" placeholder="Password" required>
+            
+                <button type="button" class="btn-main" onclick="login()">Login</button>
+            </form>
+        </div>
+    </section>
+    <section id="student-dashboard" class="dashboard-container hidden">
+        <div class="header-row">
+            <div>
+                <h1>WELCOME</h1>
+                <p class="text-light">Computer Science - Semester 3</p>
+            </div>
+            <div class="logout-btn" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Logout</div>
+        </div>
+        <div class="attendance-card mb-4">
+                <h2>90% Attendance</h2>
+                <p style="opacity: 0.9;">You are doing great! Keep it up.</p>
+        </div>
+        <div class="grid" style="grid-template-columns: 1fr 1fr; gap: 2rem;">
+            <div>
+                <h3 class="mb-4">Today's Classes</h3>
+                <div class="timetable-item">
+                    <div style="margin-right: 1rem; text-align: center; width: 50px;">
+                        <div class="font-bold">09:00</div>
+                        <div class="text-sm text-light">AM</div>
+                    </div>
+                    <div>
+                        <div class="font-bold">Data Structures</div>
+                        <div class="text-sm text-light">Room 304 • Prof. Smith</div>
+                    </div>
+                </div>
+                <div class="timetable-item" style="border-color: var(--warning);">
+                    <div style="margin-right: 1rem; text-align: center; width: 50px;">
+                        <div class="font-bold">11:00</div>
+                        <div class="text-sm text-light">AM</div>
+                    </div>
+                    <div>
+                        <div class="font-bold">Web Development</div>
+                        <div class="text-sm text-light">Lab 2 • Prof. Doe</div>
+                    </div>
+                </div>
+            </div>
+            <div>
+                <h3 class="mb-4">Assignments</h3>
+                <div class="bg-white p-4 rounded shadow mb-4">
+                    <div class="flex justify-between mb-2">
+                        <span class="font-bold">Algorithm Analysis</span>
+                        <span class="status-badge status-pending">Incomplete</span>
+                    </div>
+                    <p class="text-sm text-light">Due Tomorrow, 11:59 PM</p>
+                </div>
+                <div class="bg-white p-4 rounded shadow mb-4">
+                    <div class="flex justify-between mb-2">
+                        <span class="font-bold">Database Design</span>
+                        <span class="status-badge status-complete">Complete</span>
+                    </div>
+                    <p class="text-sm text-light">Submitted yesterday</p>
+                </div>
+                <h3 class="mb-4" style="margin-top: 2rem;">Notices</h3>
+                <div class="bg-white p-4 rounded shadow" style="border-left: 4px solid var(--danger);">
+                    <div class="font-bold text-danger">Exam Schedule Released</div>
+                    <p class="text-sm text-light mt-1">Mid-term exams start from Dec 24th. Check the portal for details.</p>
+                </div>
+                <div class="bg-white p-4 rounded shadow" style="border-left: 4px solid var(--danger);">
+                    <div class="font-bold text-danger">Class Suspended</div>
+                    <p class="text-sm text-light mt-1">Classes will remain Suspended on 20th December</p>
+                </div>
+            </div>
+        </div>
+    </section>
+    <section id="faculty-dashboard" class="dashboard-container hidden">
+        <div class="header-row">
+            <div>
+                <h1>Welcome</h1>
+                <p class="text-light">Department of Computer Science</p>
+            </div>
+            <div class="flex items-center gap-4">
+                <select class="input-box" style="margin-bottom: 0; width: 200px;">
+                    <option>Class CS Sem 1</option>
+                    <option>Class CS Sem 3</option>
+                    <option>Class CS Sem 5</option>
+                </select>
+                <div class="logout-btn" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Logout</div>
+            </div>
+        </div>
+        <div class="quick-actions">
+            <div class="action-btn" onclick="openModal('modal-notice')">
+                <div class="action-icon"><i class="fas fa-bullhorn"></i></div>
+                <div class="font-bold">Post Notice</div>
+            </div>
+            <div class="action-btn" onclick="openModal('modal-assignment')">
+                <div class="action-icon"><i class="fas fa-file-alt"></i></div>
+                <div class="font-bold">Add Assignment</div>
+            </div>
+            <div class="action-btn" onclick="openModal('modal-reschedule')">
+                <div class="action-icon"><i class="far fa-clock"></i></div>
+                <div class="font-bold">Reschedule</div>
+            </div>
+        </div>
+        <div class="grid" style="grid-template-columns: 1.5fr 1fr; gap: 2rem;">
+            <div>
+                <h3 class="mb-4">Assignment Submissions</h3>
+                
+                <div class="bg-white p-4 rounded shadow mb-4">
+                    <div class="flex justify-between">
+                        <span class="font-bold">Binary Trees Project</span>
+                        <span class="text-sm font-bold text-primary">35/40 Submitted</span>
+                    </div>
+                    <div class="submission-bar">
+                        <div class="submission-fill" style="width: 87%;"></div>
+                    </div>
+                    <div class="flex justify-between mt-2 text-sm text-light">
+                        <span>Due Date: Today</span>
+                        <a href="#" class="text-primary">View All</a>
+                    </div>
+                </div>
+                <div class="bg-white p-4 rounded shadow mb-4">
+                    <div class="flex justify-between">
+                        <span class="font-bold">Graph Theory Quiz</span>
+                        <span class="text-sm font-bold text-primary">40/40 Submitted</span>
+                    </div>
+                    <div class="submission-bar">
+                        <div class="submission-fill" style="width: 100%;"></div>
+                    </div>
+                    <div class="flex justify-between mt-2 text-sm text-light">
+                        <span>Grading Pending</span>
+                        <a href="#" class="text-primary">Grade Now</a>
+                    </div>
+                </div>
+            </div>
+            <div>
+                <h3 class="mb-4">Your Schedule Today</h3>
+                <div class="timetable-item">
+                    <div style="margin-right: 1rem; width: 50px;">
+                        <div class="font-bold">09:00 am</div>
+                    </div>
+                    <div>
+                        <div class="font-bold">CS-sem 3: Data Structures</div>
+                        <div class="text-sm text-light">Lecture Hall 1</div>
+                    </div>
+                </div>
+                <div class="timetable-item">
+                    <div style="margin-right: 1rem; width: 50px;">
+                        <div class="font-bold">2:00 pm</div>
+                    </div>
+                    <div>
+                        <div class="font-bold">CS-sem 1: Lab Session</div>
+                        <div class="text-sm text-light">Computer Lab 3</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    <div id="modal-notice" class="modal-overlay">
+        <div class="modal">
+            <h2 class="mb-4">Post New Notice</h2>
+            <select class="input-box" placeholder="Select Class">
+                <option>Select Class</option>
+                <option>CS-sem 1</option>
+                <option>CS-sem 3</option>
+                <option>CS-sem 5</option>
+            </select>
+            <input type="text" class="input-box" placeholder="Notice Title">
+            <textarea class="input-box" rows="4" placeholder="Type your announcement here..."></textarea>
+            <div class="flex gap-2">
+                <button class="btn-main" style="background: #ccc; color: #333;" onclick="closeModals()">Cancel</button>
+                <button class="btn-main" onclick="closeModals()">Post</button>
+            </div>
+        </div>
+    </div>
+    <div id="modal-assignment" class="modal-overlay">
+        <div class="modal">
+            <h2 class="mb-4">Create Assignment</h2>
+             <select class="input-box" placeholder="Select Class">
+                <option>Select Class</option>
+                <option>CS-sem 1</option>
+                <option>CS-sem 3</option>
+                <option>CS-sem 5</option>
+            </select>
+            <input type="text" class="input-box" placeholder="Assignment Title">
+            <textarea class="input-box" rows="4" placeholder="Type your Assignment here..."></textarea>
+            <input type="date" class="input-box">
+            <button class="btn-main" onclick="closeModals()">Assign to Class</button>
+            <button class="btn-main" style="background: transparent; color: #666; margin-top:10px;" onclick="closeModals()">Cancel</button>
+        </div>
+    </div>
+    <div id="modal-reschedule" class="modal-overlay">
+        <div class="modal">
+            <h2 class="mb-4">Reschedule Class</h2>
+            <select class="input-box">
+                <option>Select Class to Reschedule</option>
+                <option>11:00 AM - CS-sem 1</option>
+                <option>2:00 pm - CS-sem 3</option>
+                <option>09:00 AM - CS-sem 5</option>
+            </select>
+            <label class="text-sm text-light">New Time</label>
+            <input type="time" class="input-box">
+            <button class="btn-main" onclick="closeModals()">Confirm Change</button>
+            <button class="btn-main" style="background: transparent; color: #666; margin-top:10px;" onclick="closeModals()">Cancel</button>
+        </div>
+    </div>
+    <script>
+        let currentRole = 'student';
+        function setRole(role) {
+            currentRole = role;
+            document.getElementById('btn-student').className = role === 'student' ? 'role-btn active' : 'role-btn';
+            document.getElementById('btn-faculty').className = role === 'faculty' ? 'role-btn active' : 'role-btn';
+        }
+        function login() {
+            document.getElementById('login-screen').classList.add('hidden');
+            if(currentRole === 'student') {
+                document.getElementById('student-dashboard').classList.remove('hidden');
+            } else {
+                document.getElementById('faculty-dashboard').classList.remove('hidden');
+            }
+        }
+        function logout() {
+            document.getElementById('student-dashboard').classList.add('hidden');
+            document.getElementById('faculty-dashboard').classList.add('hidden');
+            document.getElementById('login-screen').classList.remove('hidden');
+        }
+        function openModal(id) {
+            document.getElementById(id).classList.add('open');
+        }
+        function closeModals() {
+            document.querySelectorAll('.modal-overlay').forEach(el => el.classList.remove('open'));
+        }
+        window.onclick = function(event) {
+            if (event.target.classList.contains('modal-overlay')) {
+                closeModals();
+            }
+        }
+    </script>
+</body>
+</html>
